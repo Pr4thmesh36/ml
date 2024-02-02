@@ -1,0 +1,79 @@
+from itertools import combinations
+
+def calculate_support(transactions, itemset):
+    count = 0
+    for transaction in transactions:
+        if all(item in transaction for item in itemset):
+            count += 1
+    return count / len(transactions)
+
+def calculate_confidence(transactions, antecedent, consequent):
+    antecedent_support = calculate_support(transactions, antecedent)
+    rule_support = calculate_support(transactions, antecedent + consequent)
+    return rule_support / antecedent_support
+
+def calculate_lift(transactions, antecedent, consequent):
+    antecedent_support = calculate_support(transactions, antecedent)
+    consequent_support = calculate_support(transactions, consequent)
+    rule_support = calculate_support(transactions, antecedent + consequent)
+    return rule_support / (antecedent_support * consequent_support)
+
+def get_user_items():
+    try:
+        items = input("Enter unique items (comma-separated): ").split(',')
+        # Basic validation: Ensure that the user entered at least two unique items
+        if len(set(items)) < 2:
+            raise ValueError("At least two unique items are required.")
+    except ValueError as e:
+        print(f"Error: {e}")
+        return get_user_items()
+    
+    return items
+
+def get_user_transactions(items):
+    transactions = []
+    try:
+        num_transactions = int(input("Enter the number of transactions: "))
+        if num_transactions <= 0:
+            raise ValueError("Number of transactions must be a positive integer.")
+        
+        for i in range(num_transactions):
+            selected_items = input(f"Enter items for transaction T{i + 1} (comma-separated): ").split(',')
+            # Basic validation: Ensure that the user entered at least one item
+            if not selected_items:
+                raise ValueError("At least one item must be entered for each transaction.")
+            # Ensure all entered items are part of the initial unique items set
+            if not set(selected_items).issubset(set(items)):
+                raise ValueError("Invalid item(s) entered.")
+            transactions.append([item.strip() for item in selected_items])
+    except ValueError as e:
+        print(f"Error: {e}")
+        return get_user_transactions(items)
+    
+    return transactions
+
+def find_association_rules(transactions):
+    items = set(item for transaction in transactions for item in transaction)
+    rules = []
+    for item in items:
+        antecedent = [item]
+        consequents = items - set(antecedent)
+        for consequent in consequents:
+            support = calculate_support(transactions, [item, consequent])
+            confidence = calculate_confidence(transactions, [item], [consequent])
+            lift = calculate_lift(transactions, [item], [consequent])
+            rules.append({'Antecedent': item, 'Consequent': consequent, 'Support': support, 'Confidence': confidence, 'Lift': lift})
+    return rules
+
+# Get user input for unique items
+user_items = get_user_items()
+
+# Get user input for transactions using the specified items
+user_transactions = get_user_transactions(user_items)
+
+# Find association rules
+association_rules = find_association_rules(user_transactions)
+
+# Display the results
+for rule in association_rules:
+    print(f"Rule: {rule['Antecedent']} => {rule['Consequent']}, Support: {rule['Support']:.2f}, Confidence: {rule['Confidence']:.2f}, Lift: {rule['Lift']:.2f}")
