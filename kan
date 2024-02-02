@@ -1,0 +1,36 @@
+from itertools import combinations
+
+# Function to calculate support
+def calculate_support(itemset, transactions):
+    count = sum(1 for transaction in transactions if itemset.issubset(transaction))
+    return count / len(transactions)
+
+# Function to calculate confidence
+def calculate_confidence(antecedent, consequent, transactions):
+    antecedent_count = sum(1 for transaction in transactions if antecedent.issubset(transaction))
+    consequent_count = sum(1 for transaction in transactions if antecedent.issubset(transaction) and consequent.issubset(transaction))
+
+    return consequent_count / antecedent_count if antecedent_count != 0 else 0
+
+# Function to calculate lift
+def calculate_lift(support, confidence):
+    return support / confidence if confidence != 0 else 0
+
+# User input for transactions
+num_transactions = int(input("Enter the number of transactions: "))
+transactions = [set(map(str.strip, input(f"Enter items for transaction {i + 1} (comma-separated): ").split(','))) for i in range(num_transactions)]
+
+# User input for rule
+antecedent_items = set(map(str.strip, input("Enter antecedent items (comma-separated): ").split(',')))
+consequent_items = set(map(str.strip, input("Enter consequent items (comma-separated): ").split(',')))
+
+# Calculate support, confidence, and lift
+support = calculate_support(antecedent_items.union(consequent_items), transactions)
+confidence = calculate_confidence(antecedent_items, consequent_items, transactions)
+lift = calculate_lift(support, confidence)
+
+# Print the results
+print(f"\nRule: {antecedent_items} -> {consequent_items}")
+print(f"Support: {support}")
+print(f"Confidence: {confidence}")
+print(f"Lift: {lift}")
