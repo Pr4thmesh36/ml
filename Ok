@@ -1,0 +1,25 @@
+def get_user_input():
+    try:
+        transaction = input("Enter items for the transaction (comma-separated): ").split(',')
+        antecedent = input("Enter antecedent (comma-separated): ").split(',')
+        consequent = input("Enter consequent (comma-separated): ").split(',')
+
+        # Basic validation: Ensure that the user entered at least one item for each
+        if not transaction or not antecedent or not consequent:
+            raise ValueError("At least one item must be entered for each field.")
+        
+        return [transaction, antecedent, consequent]
+    except ValueError as e:
+        print(f"Error: {e}")
+        return get_user_input()
+
+# Get user input
+user_input = get_user_input()
+
+# Calculate and display support, confidence, and lift
+support = calculate_support(user_transactions, user_input[0])
+confidence = calculate_confidence(user_transactions, user_input[1], user_input[2])
+lift = calculate_lift(user_transactions, user_input[1], user_input[2])
+
+# Display the results
+print(f"Support: {support:.2f}, Confidence: {confidence:.2f}, Lift: {lift:.2f}")
