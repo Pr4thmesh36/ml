@@ -1,0 +1,48 @@
+from itertools import combinations
+
+def get_user_items():
+    try:
+        items = input("Enter unique items (comma-separated): ").split(',')
+        # Basic validation: Ensure that the user entered at least two unique items
+        if len(set(items)) < 2:
+            raise ValueError("At least two unique items are required.")
+    except ValueError as e:
+        print(f"Error: {e}")
+        return get_user_items()
+    
+    return items
+
+def get_user_transactions(items):
+    transactions = []
+    try:
+        num_transactions = int(input("Enter the number of transactions: "))
+        if num_transactions <= 0:
+            raise ValueError("Number of transactions must be a positive integer.")
+        
+        for i in range(num_transactions):
+            selected_items = input(f"Enter items for transaction T{i + 1} (comma-separated): ").split(',')
+            # Basic validation: Ensure that the user entered at least one item
+            if not selected_items:
+                raise ValueError("At least one item must be entered for each transaction.")
+            # Ensure all entered items are part of the initial unique items set
+            if not set(selected_items).issubset(set(items)):
+                raise ValueError("Invalid item(s) entered.")
+            transactions.append([item.strip() for item in selected_items])
+    except ValueError as e:
+        print(f"Error: {e}")
+        return get_user_transactions(items)
+    
+    return transactions
+
+# Get user input for unique items
+user_items = get_user_items()
+
+# Get user input for transactions using the specified items
+user_transactions = get_user_transactions(user_items)
+
+# Rest of the code remains unchanged
+association_rules = find_association_rules(user_transactions)
+
+# Display the results
+for rule in association_rules:
+    print(f"Rule: {rule['Antecedent']} => {rule['Consequent']}, Support: {rule['Support']:.2f}, Confidence: {rule['Confidence']:.2f}, Lift: {rule['Lift']:.2f}")
